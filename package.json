@@ -2,6 +2,7 @@
   "dependencies": {
     "@tanstack/react-query": "^5.79.0",
     "express": "^5.1.0",
+    "openai": "^6.6.0",
     "sqlite3": "^5.1.7",
     "zustand": "^5.0.5"
   }

@@ -11,17 +11,17 @@ import {
   getReadingStats,
 } from '@/lib/db-operations';
 
-const openrouter = createOpenAI({
-  baseURL: 'https://openrouter.ai/api/v1',
-  apiKey: process.env.OPENROUTER_API_KEY || '',
+const deepseek = createOpenAI({
+  baseURL: 'https://api.deepseek.com/v1',
+  apiKey: process.env.DEEPSEEK_API_KEY || '',
 });
 
 export async function POST(req: NextRequest) {
   try {
     console.log('🚀 API route iniciada');
     
-    if (!process.env.OPENROUTER_API_KEY) {
-      console.error('OPENROUTER_API_KEY no configurada');
+    if (!process.env.DEEPSEEK_API_KEY) {
+      console.error('DEEPSEEK_API_KEY no configurada');
       return new Response('Server configuration error', { status: 500 });
     }
 
@@ -36,17 +36,20 @@ export async function POST(req: NextRequest) {
     for (let i = 0; i < messages.length; i++) {
       const message = messages[i];
       
-      if (!message.content || typeof message.content !== 'string') {
-        console.error(`Mensaje ${i} inválido`);
-        return new Response(`Invalid message format at index ${i}`, { status: 400 });
+      if (message.role === 'user') {
+        if (!message.content || typeof message.content !== 'string') {
+          console.error(`Mensaje ${i} inválido`);
+          return new Response(`Invalid message format at index ${i}`, { status: 400 });
+        }
+        
+        if (message.content.length > 1000) {
+          console.error(`Mensaje muy largo:`, message.content.length);
+          return new Response(`Message too long`, { status: 400 });
+        }
       }
       
-      if (message.role === 'user' && message.content.length > 1000) {
-        console.error(`Mensaje muy largo:`, message.content.length);
-        return new Response(`Message too long`, { status: 400 });
-      }
 
-      if (!['user', 'assistant', 'system'].includes(message.role)) {
+      if (!['user', 'assistant', 'system', 'tool'].includes(message.role)) {
         console.error(`Role inválido:`, message.role);
         return new Response(`Invalid role at index ${i}`, { status: 400 });
       }
@@ -57,9 +60,7 @@ export async function POST(req: NextRequest) {
     const userId = 'demo-user';
 
     const result = await streamText({
-      model: openrouter(
-        process.env.OPENROUTER_MODEL || 'meta-llama/llama-3.2-3b-instruct:free'
-      ),
+      model: deepseek('deepseek-chat'),
       messages,
       system: `Eres BookAdvisor. Ayudas a descubrir libros, organizar listas de lectura y ver estadísticas.
 

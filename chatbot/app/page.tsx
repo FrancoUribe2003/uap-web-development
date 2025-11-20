@@ -7,12 +7,10 @@ export default function ChatPage() {
   const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat();
   const [error, setError] = useState<string | null>(null);
 
-  // Función para validar input antes de enviar
   const validateAndSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    // Validaciones del frontend
     if (!input.trim()) {
       setError('El mensaje no puede estar vacío');
       return;
@@ -23,7 +21,6 @@ export default function ChatPage() {
       return;
     }
 
-    // Si pasa las validaciones, enviar
     handleSubmit(e);
   };
 
@@ -34,7 +31,7 @@ export default function ChatPage() {
           <div className="text-4xl">⚽</div>
           <div>
             <h1 className="text-3xl font-black text-blue-900 drop-shadow-lg">
-              BOCA IA 💙💛
+              BOCA IA
             </h1>
             <p className="text-blue-800 font-bold">La máquina más bostera del mundo</p>
           </div>
